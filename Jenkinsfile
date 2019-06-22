@@ -27,10 +27,6 @@ node {
         }
      } */
 
-    stage('Setup Docker User'){
-        sh "sudo usermod -a -G docker $USER"
-    }
-
     stage("Image Prune"){
         imagePrune(CONTAINER_NAME)
     }

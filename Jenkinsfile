@@ -1,7 +1,7 @@
 def CONTAINER_NAME="ratpack-jenkins-pipeline"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="saravananperumal"
-/* def HTTP_PORT="5050" */
+def HTTP_PORT="5050"
 
 node {
 
@@ -42,7 +42,7 @@ node {
     }
 
     stage('Run App'){
-        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
+        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
     }
 
 }
@@ -66,8 +66,8 @@ def pushToImage(containerName, tag, dockerUser, dockerPassword){
     echo "Image push complete"
 }
 
-def runApp(containerName, tag, dockerHubUser){
+def runApp(containerName, tag, dockerHubUser, httpPort){
     sh "docker pull $dockerHubUser/$containerName"
-    sh "docker run -d --rm --name $containerName $dockerHubUser/$containerName:$tag"
+    sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $dockerHubUser/$containerName:$tag"
     echo "Ratpack Application started"
 }

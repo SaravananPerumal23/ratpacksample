@@ -42,7 +42,7 @@ node {
     }
 
     stage('Run App'){
-        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
+        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER)
     }
 
 }
@@ -66,7 +66,7 @@ def pushToImage(containerName, tag, dockerUser, dockerPassword){
     echo "Image push complete"
 }
 
-def runApp(containerName, tag, dockerHubUser, httpPort){
+def runApp(containerName, tag, dockerHubUser){
     sh "docker pull $dockerHubUser/$containerName"
     sh "docker run -d --rm --name $containerName $dockerHubUser/$containerName:$tag"
     echo "Ratpack Application started"

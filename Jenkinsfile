@@ -16,7 +16,7 @@ node {
     }
 
     stage('Build'){
-        sh "./gradlew build"
+        sh "gradle build"
     }
 
     /* stage('Sonar'){

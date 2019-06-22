@@ -1,7 +1,7 @@
 def CONTAINER_NAME="ratpack-jenkins-pipeline"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="saravananperumal"
-def HTTP_PORT="5050"
+/* def HTTP_PORT="5050" */
 
 node {
 
@@ -25,7 +25,7 @@ node {
         } catch(error){
             echo "The sonar server could not be reached ${error}"
         }
-     }
+     } */
 
     stage("Image Prune"){
         imagePrune(CONTAINER_NAME)
@@ -36,7 +36,7 @@ node {
     }
 
     stage('Push to Docker Registry'){
-        withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+        withCredentials([usernamePassword(credentialsId: 'dockerHubCred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
             pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
         }
     }
@@ -44,7 +44,6 @@ node {
     stage('Run App'){
         runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
     }
-    */
 
 }
 
@@ -69,6 +68,6 @@ def pushToImage(containerName, tag, dockerUser, dockerPassword){
 
 def runApp(containerName, tag, dockerHubUser, httpPort){
     sh "docker pull $dockerHubUser/$containerName"
-    sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $dockerHubUser/$containerName:$tag"
-    echo "Application started on port: ${httpPort} (http)"
+    sh "docker run -d --rm --name $containerName $dockerHubUser/$containerName:$tag"
+    echo "Ratpack Application started"
 }

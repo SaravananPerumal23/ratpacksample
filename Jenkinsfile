@@ -1,50 +1,68 @@
-def CONTAINER_NAME="ratpack-jenkins-pipeline"
+def CONTAINER_NAME="ratpackapp"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="saravananperumal"
 def HTTP_PORT="5050"
 
 node {
 
-    stage('Initialize'){
-        def dockerHome = tool 'myDocker'
-        def gradleHome  = tool 'myGradle'
-        env.PATH = "${dockerHome}/bin:${gradleHome}/bin:${env.PATH}"
-    }
+     try {
 
-    stage('Checkout') {
-        checkout scm
-    }
-
-    stage('Build'){
-        sh "gradle build"
-    }
-
-    /* stage('Sonar'){
-        try {
-            sh "mvn sonar:sonar"
-        } catch(error){
-            echo "The sonar server could not be reached ${error}"
+        stage('Initialize'){
+            def dockerHome = tool 'myDocker'
+            def gradleHome  = tool 'myGradle'
+            env.PATH = "${dockerHome}/bin:${gradleHome}/bin:${env.PATH}"
         }
-     } */
 
-    stage("Image Prune"){
-        imagePrune(CONTAINER_NAME)
-    }
-
-    stage('Image Build'){
-        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
-    }
-
-    stage('Push to Docker Registry'){
-        withCredentials([usernamePassword(credentialsId: 'dockerHubCred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
+        stage('Checkout') {
+            checkout scm
         }
-    }
 
-    stage('Run App'){
-        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
-    }
+        stage('Build'){
+            sh "gradle build"
+        }
 
+        stage('Selenium Test'){
+            sh "chmod 777 ${WORKSPACE}/src/main/resources/chromedriver"
+            sh "gradle seleniumTest"
+        }
+
+        stage('SonarQube analysis') {
+           sh "gradle sonarqube"
+        }
+
+        stage("Image Prune"){
+            imagePrune(CONTAINER_NAME)
+        }
+
+        stage('Image Build'){
+            imageBuild(CONTAINER_NAME, CONTAINER_TAG)
+        }
+
+        stage('Push to Docker Registry'){
+            withCredentials([usernamePassword(credentialsId: 'dockerHubCred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
+            }
+        }
+
+        stage('Run App'){
+            runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
+        }
+
+        stage('Email Notification'){
+            notifySuccessful()
+        }
+
+        stage('CleanWorkspace') {
+            cleanWs()
+        }
+
+     } catch (e) {
+         currentBuild.result = "FAILED"
+         stage('Email Notification'){
+            notifyFailed()
+         }
+         throw e
+     }
 }
 
 def imagePrune(containerName){
@@ -71,3 +89,22 @@ def runApp(containerName, tag, dockerHubUser, httpPort){
     sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $dockerHubUser/$containerName:$tag"
     echo "Ratpack Application started"
 }
+
+def notifySuccessful() {
+     emailext (
+       subject: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+       body: """<p>SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+         <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""",
+       to: "saravananperumalit@gmail.com",
+       recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+     )
+}
+def notifyFailed() {
+     emailext (
+       subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+       body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+         <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""",
+       to: "saravananperumalit@gmail.com",
+       recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+     )
+ }

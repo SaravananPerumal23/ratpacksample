@@ -23,10 +23,11 @@ try {
       app.appendChild(errorMessage);
     }
   }
-  request.send();
 }
 catch (e) {
   const errorMessage = document.createElement('marquee');
   errorMessage.textContent = `Exception while invoking Web API`;
   app.appendChild(errorMessage);
 }
+
+request.send();

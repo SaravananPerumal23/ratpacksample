@@ -23,11 +23,11 @@ node {
 
         stage('Selenium Test'){
             sh "chmod 777 ${WORKSPACE}/src/main/resources/chromedriver"
-            sh "gradle seleniumTest"
+            sh "./gradlew seleniumTest"
         }
 
         stage('SonarQube analysis') {
-           sh "gradle sonarqube"
+           sh "./gradlew sonarqube"
         }
 
         stage("Image Prune"){

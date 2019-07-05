@@ -18,7 +18,7 @@ node {
         }
 
         stage('Build'){
-            sh "gradle build"
+            sh "./gradlew build"
         }
 
         stage('Selenium Test'){

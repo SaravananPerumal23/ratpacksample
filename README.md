@@ -62,7 +62,7 @@ docker push saravananperumal/ratpackapp:v1.0
 <b>Solution:</b> If your app is working inside of the container when you access it using curl ‘http://localhost:5050'
 and not from hosted machine, then you need to check if its a VM which provisions docker to be running on your machine.
 If so, you need to get the IP address of docker-machine and then access the app using this IP address and port instead
-of trying with localhost.
+of trying with localhost or the container IP address.
 
 
 ## Jenkins Pipeline
@@ -103,7 +103,7 @@ Steps to install Chrome headless browser in Ubuntu for Jenkins build,
 sudo apt-get update
 sudo apt-get install -y libappindicator1 fonts-liberation
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo dpkg -i google-chrome*.de
+sudo dpkg -i google-chrome*.deb
 ```
 
 If you run into issues while installing google-chrome stable version because of dependencies then run the below 
@@ -121,3 +121,14 @@ gradle seleniumTest
 
 ## Test App
 A simple html page which invokes Web API's using Javascript and displays the response.
+
+
+## Docker-Compose
+
+```
+docker-compose up -d
+```
+
+```
+docker-compose -f docker-compose.yml up --build
+```

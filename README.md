@@ -64,6 +64,11 @@ and not from hosted machine, then you need to check if its a VM which provisions
 If so, you need to get the IP address of docker-machine and then access the app using this IP address and port instead
 of trying with localhost or the container IP address.
 
+<b>Issue:</b> Unable to start Gradle daemon due to low memory
+
+<b>Solution:</b> If Jenkins is run from Docker container and is hosted on VirtualBox VM, then you will have to increase
+the CPU & Memory for docker-machine instance. You can increase it to 4GB memory and 2 CPU.
+
 
 ## Jenkins Pipeline
 Pipeline has been setup to build, unit test, selenium test, code scan with Sonarqube, building docker image,
@@ -125,10 +130,35 @@ A simple html page which invokes Web API's using Javascript and displays the res
 
 ## Docker-Compose
 
-```
-docker-compose up -d
-```
+Jenkins & Sonarqube will be setup using Docker and its been simplified with docker-compose.
+
+Use below commands to create docker containers 
 
 ```
 docker-compose -f docker-compose.yml up --build
 ```
+
+```
+docker-compose up -d
+```
+
+After Jenkins and Sonarqube has been setup with Docker containers, you should be able to access them from browser. 
+If its hosted using docker-machine, then you need to access using its IP Address
+
+<b><u>Jenkins</u></b>
+
+http://localhost:8080
+
+or
+
+http://{DOCKER-ENGINE-IPADDRESS}:8080
+
+
+<b><u>Sonarqube</u></b>
+
+http://localhost:9000
+
+or
+
+http://{DOCKER-ENGINE-IPADDRESS}:9000
+

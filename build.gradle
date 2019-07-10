@@ -46,16 +46,24 @@ jar {
     }
 }
 
+
 sonarqube {
+    //Sonar cloud Properties
+//    properties {
+//        property "sonar.host.url", "http://sonarcloud.io"
+//        property "sonar.login", "06e08444748c443b06572cf215a10cee74c10b05"
+//        property "sonar.organization", "ORG-NAME"
+//        property "sonar.projectName", "ratpackSample"
+//        property "sonar.projectKey", "PROJECT-KEY"
+//    }
+
+    //Sonarqube local docker container Properties
     properties {
-        property "sonar.host.url", "http://sonarcloud.io"
-        property "sonar.login", "06e08444748c443b06572cf215a10cee74c10b05"
-        property "sonar.organization", "sundaravelb-github"
-        property "sonar.projectName", "ratpackSample"
-        property "sonar.projectKey", "SundaravelB_Assmt"
+        //The below URL is the IP address of docker-machine
+        property "sonar.host.url", "http://192.168.99.102:9000"
+        property "sonar.login", "ce74a06bbf361b2a8f929b464a6d0d972ade41ee"
     }
 }
-
 mainClassName = 'Main'
 
 apply from: 'gradle/seleniumTest.gradle'
